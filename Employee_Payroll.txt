@@ -1,0 +1,376 @@
+UC-1 :- Ability to create a payroll service database
+
+MySQL  localhost:3306 ssl  SQL > show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| payroll_service    |
+| performance_schema |
+| sakila             |
+| sys                |
+| testdb             |
+| world              |
++--------------------+
+8 rows in set (0.0012 sec)
+________________________________________________________________________________________________________________________________________________________________________
+
+UC-2 :- Ability to create a employee payroll table in the payroll service database to manage employee payrolls
+
+MySQL  localhost:3306 ssl  payroll_service  SQL > create table employee_payroll
+                                                -> (
+                                                -> id       int unsigned not null auto_increment,
+                                                -> NAME      varchar(150) not null,
+                                                -> SALARY     double not null,
+                                                -> START     date not null,
+                                                -> PRIMARY KEY (id)
+                                                -> );
+Query OK, 0 rows affected (0.6385 sec)
+ MySQL  localhost:3306 ssl  payroll_service  SQL > describe employee_payroll
+                                                -> ^C
+ MySQL  localhost:3306 ssl  payroll_service  SQL > describe employee_payroll;
++--------+--------------+------+-----+---------+----------------+
+| Field  | Type         | Null | Key | Default | Extra          |
++--------+--------------+------+-----+---------+----------------+
+| id     | int unsigned | NO   | PRI | NULL    | auto_increment |
+| NAME   | varchar(150) | NO   |     | NULL    |                |
+| SALARY | double       | NO   |     | NULL    |                |
+| START  | date         | NO   |     | NULL    |                |
++--------+--------------+------+-----+---------+----------------+
+4 rows in set (0.2426 sec)
+___________________________________________________________________________________________________________________________________________________________________________
+
+UC-3 :- Ability to create employee payroll data in the payroll service database as part of  CRUD Operation
+
+MySQL  localhost:3306 ssl  payroll_service  SQL > insert into employee_payroll (NAME, SALARY, START) values ( 'JACK', 100000.00, '2021-03-01'), ( 'ROSE', 200000.00, '2020-12-17'), ( 'HARRY', 300000.00, '2020-04-25');
+Query OK, 3 rows affected (0.2336 sec)
+
+Records: 3  Duplicates: 0  Warnings: 0
+
+MySQL  localhost:3306 ssl  payroll_service  SQL > select * from employee_payroll;
++----+-------+--------+------------+
+| id | NAME  | SALARY | START      |
++----+-------+--------+------------+
+|  1 | JACK  | 100000 | 2021-03-01 |
+|  2 | ROSE  | 200000 | 2020-12-17 |
+|  3 | HARRY | 300000 | 2020-04-25 |
++----+-------+--------+------------+
+3 rows in set (0.0010 sec)
+______________________________________________________________________________________________________________________________________________________________________
+
+UC-4 :- Ability to retrieve all the employee payroll data that is added to payroll service database
+
+MySQL  localhost:3306 ssl  payroll_service  SQL > select * from employee_payroll where start between cast( '2020-01-10' as date)
+                                                -> and date(now());
++----+-------+--------+------------+
+| id | NAME  | SALARY | START      |
++----+-------+--------+------------+
+|  1 | JACK  | 100000 | 2021-03-01 |
+|  2 | ROSE  | 200000 | 2020-12-17 |
+|  3 | HARRY | 300000 | 2020-04-25 |
++----+-------+--------+------------+
+3 rows in set (0.1043 sec)
+
+_________________________________________________________________________________________________________________________________________________________________________
+
+UC-5 :- Ability to retrieve salary data for a particular employee as well as all employees who have joined in a particular data range from the payroll service database
+ 
+ MySQL  localhost:3306 ssl  payroll_service  SQL > select SALARY from employee_payroll where name = 'ROSE';
++--------+
+| SALARY |
++--------+
+| 200000 |
++--------+
+1 row in set (0.0009 sec)
+
+ MySQL  localhost:3306 ssl  payroll_service  SQL > select * from employee_payroll where start between cast( '2020-01-10' as date)
+                                                -> and date(now());
++----+-------+--------+------------+
+| id | NAME  | SALARY | START      |
++----+-------+--------+------------+
+|  1 | JACK  | 100000 | 2021-03-01 |
+|  2 | ROSE  | 200000 | 2020-12-17 |
+|  3 | HARRY | 300000 | 2020-04-25 |
++----+-------+--------+------------+
+3 rows in set (0.1043 sec)
+
+______________________________________________________________________________________________________________________________________________________________________________
+UC-6 :- Ability to add Gender to Employee Payroll Table and Update the Rows to reflect the correct Employee Gender
+
+ MySQL  localhost:3306 ssl  payroll_service  SQL > alter table employee_payroll add gender char(1) after NAME;
+Query OK, 0 rows affected (2.3413 sec)
+
+Records: 0  Duplicates: 0  Warnings: 0
+ MySQL  localhost:3306 ssl  payroll_service  SQL > describe employee_payroll;
++--------+--------------+------+-----+---------+----------------+
+| Field  | Type         | Null | Key | Default | Extra          |
++--------+--------------+------+-----+---------+----------------+
+| id     | int unsigned | NO   | PRI | NULL    | auto_increment |
+| NAME   | varchar(150) | NO   |     | NULL    |                |
+| gender | char(1)      | YES  |     | NULL    |                |
+| SALARY | double       | NO   |     | NULL    |                |
+| START  | date         | NO   |     | NULL    |                |
++--------+--------------+------+-----+---------+----------------+
+5 rows in set (0.1381 sec)
+ MySQL  localhost:3306 ssl  payroll_service  SQL > update employee_payroll
+                                                -> set GENDER = 'M'
+                                                -> where NAME = 'JACK' or NAME = 'HARRY';
+Query OK, 2 rows affected (0.2015 sec)
+
+Rows matched: 2  Changed: 2  Warnings: 0
+ MySQL  localhost:3306 ssl  payroll_service  SQL > select * from employee_payroll;
++----+-------+--------+--------+------------+
+| id | NAME  | gender | SALARY | START      |
++----+-------+--------+--------+------------+
+|  1 | JACK  | M      | 100000 | 2021-03-01 |
+|  2 | ROSE  | NULL   | 200000 | 2020-12-17 |
+|  3 | HARRY | M      | 300000 | 2020-04-25 |
++----+-------+--------+--------+------------+
+3 rows in set (0.0007 sec)
+_____________________________________________________________________________________________________________________________________________________________________________
+
+UC-7 :- Ability to find sum, average, min, max and number of male and female employees
+
+MySQL  localhost:3306 ssl  payroll_service  SQL > select AVG(SALARY) from employee_payroll where gender='M' group by gender;
++-------------+
+| AVG(SALARY) |
++-------------+
+|      200000 |
++-------------+
+1 row in set (0.0009 sec)
+ MySQL  localhost:3306 ssl  payroll_service  SQL > select AVG(salary) from employee_payroll where NAME = 'Jack' group by gender;
++-------------+
+| AVG(salary) |
++-------------+
+|      100000 |
++-------------+
+1 row in set (0.0008 sec)
+ MySQL  localhost:3306 ssl  payroll_service  SQL > select NAME , gender , count(SALARY) from employee_payroll where gender = 'M' group by gender;
++------+--------+---------------+
+| NAME | gender | count(SALARY) |
++------+--------+---------------+
+| JACK | M      |             2 |
++------+--------+---------------+
+1 row in set (0.0010 sec)
+ MySQL  localhost:3306 ssl  payroll_service  SQL > alter table employee_payroll add PhoneNumber varchar(15) after NAME ;
+Query OK, 0 rows affected (2.6606 sec)
+
+Records: 0  Duplicates: 0  Warnings: 0
+
+ MySQL  localhost:3306 ssl  payroll_service  SQL > alter table employee_payroll add PhoneNumber varchar(15) after NAME ;
+Query OK, 0 rows affected (2.6606 sec)
+
+Records: 0  Duplicates: 0  Warnings: 0
+
+ MySQL  localhost:3306 ssl  payroll_service  SQL > alter table employee_payroll add ADDRESS varchar(200) after PhoneNumber ;
+Query OK, 0 rows affected (1.9309 sec)
+
+Records: 0  Duplicates: 0  Warnings: 0
+
+ MySQL  localhost:3306 ssl  payroll_service  SQL > alter table employee_payroll add DEPARTMENT varchar(50) after ADDRESS ;
+Query OK, 0 rows affected (2.3643 sec)
+
+Records: 0  Duplicates: 0  Warnings: 0
+
+MySQL  localhost:3306 ssl  payroll_service  SQL > select * from employee_payroll;
++----+-------+-------------+---------+------------+--------+--------+------------+
+| id | NAME  | PhoneNumber | ADDRESS | DEPARTMENT | gender | SALARY | START      |
++----+-------+-------------+---------+------------+--------+--------+------------+
+|  1 | JACK  | NULL        | NULL    | NULL       | M      | 100000 | 2021-03-01 |
+|  2 | ROSE  | NULL        | NULL    | NULL       | NULL   | 200000 | 2020-12-17 |
+|  3 | HARRY | NULL        | NULL    | NULL       | M      | 300000 | 2020-04-25 |
++----+-------+-------------+---------+------------+--------+--------+------------+
+3 rows in set (0.0009 sec)
+____________________________________________________________________________________________________________________________________________________________________________
+
+UC-8 :- Ability to extend employee_payroll data to store employee information like employee phone, address and department 
+
+select * from employee_payroll;
++----+-------+-------------+---------+------------+--------+--------+------------+
+| id | NAME  | PhoneNumber | ADDRESS | DEPARTMENT | gender | SALARY | START      |
++----+-------+-------------+---------+------------+--------+--------+------------+
+|  1 | JACK  | 982345232   | Mumbai  | CIVIL      | M      | 100000 | 2021-03-01 |
+|  2 | ROSE  | 9867895232  | Swiden  | IT         | F      | 200000 | 2020-12-17 |
+|  3 | HARRY | 9876543232  | USA     | Agronomi   | M      | 300000 | 2020-04-25 |
++----+-------+-------------+---------+------------+--------+--------+------------+
+3 rows in set (0.0238 sec)
+___________________________________________________________________________________________________________________________________________________________________________
+
+UC-9 :- Ability to extend employee_payroll table to have Basic Pay, Deductions, Taxable Pay, Income Tax, Net Pay
+
+ MySQL  localhost:3306 ssl  payroll_service  SQL > alter table employee_payroll add DEDUCTION double not null after SALARY;
+Query OK, 0 rows affected (2.0731 sec)
+
+Records: 0  Duplicates: 0  Warnings: 0
+ MySQL  localhost:3306 ssl  payroll_service  SQL > alter table employee_payroll add TAX_PAYABLE double not null after DEDUCTION;
+Query OK, 0 rows affected (1.7305 sec)
+
+Records: 0  Duplicates: 0  Warnings: 0
+ MySQL  localhost:3306 ssl  payroll_service  SQL > alter table employee_payroll add INCOME_TAX double not null after TAX_PAYABLE;
+Query OK, 0 rows affected (1.6387 sec)
+
+Records: 0  Duplicates: 0  Warnings: 0
+ MySQL  localhost:3306 ssl  payroll_service  SQL > alter table employee_payroll add NET_PAY double not null after INCOME_TAX;
+Query OK, 0 rows affected (2.8150 sec)
+
+Records: 0  Duplicates: 0  Warnings: 0
+ MySQL  localhost:3306 ssl  payroll_service  SQL > describe employee_payroll;
++-------------+--------------+------+-----+---------+----------------+
+| Field       | Type         | Null | Key | Default | Extra          |
++-------------+--------------+------+-----+---------+----------------+
+| id          | int unsigned | NO   | PRI | NULL    | auto_increment |
+| NAME        | varchar(150) | NO   |     | NULL    |                |
+| PhoneNumber | varchar(15)  | YES  |     | NULL    |                |
+| ADDRESS     | varchar(200) | YES  |     | NULL    |                |
+| DEPARTMENT  | varchar(50)  | YES  |     | NULL    |                |
+| gender      | char(1)      | YES  |     | NULL    |                |
+| SALARY      | double       | NO   |     | NULL    |                |
+| DEDUCTION   | double       | NO   |     | NULL    |                |
+| TAX_PAYABLE | double       | NO   |     | NULL    |                |
+| INCOME_TAX  | double       | NO   |     | NULL    |                |
+| NET_PAY     | double       | NO   |     | NULL    |                |
+| START       | date         | NO   |     | NULL    |                |
++-------------+--------------+------+-----+---------+----------------+
+12 rows in set (0.0016 sec)
+___________________________________________________________________________________________________________________________________________________________________________
+
+UC-10 :- Ability to make "ROSE" as part of Sales and Marketing Department
+
+ MySQL  localhost:3306 ssl  payroll_service  SQL > insert into employee_payroll (id, NAME,PhoneNumber, ADDRESS, DEPARTMENT, gender, SALARY, DEDUCTION, TAX_PAYABLE, INCOME_TAX, NET_PAY, START) values (4, 'ROSE',2345676543, 'Swiden', 'Marketing', 'F', 200000, 10000, 20000, 20000, 195000, '2021-12-17');
+Query OK, 1 row affected (0.1870 sec)
+ MySQL  localhost:3306 ssl  payroll_service  SQL > select*from employee_payroll ;
++----+-------+-------------+---------+------------+--------+--------+-----------+-------------+------------+---------+------------+
+| id | NAME  | PhoneNumber | ADDRESS | DEPARTMENT | gender | SALARY | DEDUCTION | TAX_PAYABLE | INCOME_TAX | NET_PAY | START      |
++----+-------+-------------+---------+------------+--------+--------+-----------+-------------+------------+---------+------------+
+|  1 | JACK  | 982345232   | Mumbai  | CIVIL      | M      | 100000 |         0 |           0 |          0 |       0 | 2021-03-01 |
+|  2 | ROSE  | 9867895232  | Swiden  | sales      | F      | 200000 |         0 |           0 |          0 |       0 | 2020-12-17 |
+|  3 | HARRY | 9876543232  | USA     | Agronomi   | M      | 300000 |         0 |           0 |          0 |       0 | 2020-04-25 |
+|  4 | ROSE  | 2345676543  | Swiden  | Marketing  | F      | 200000 |     10000 |       20000 |      20000 |  195000 | 2021-12-17 |
++----+-------+-------------+---------+------------+--------+--------+-----------+-------------+------------+---------+------------+
+4 rows in set (0.0007 sec)
+ MySQL  localhost:3306 ssl  payroll_service  SQL > select * from employee_payroll where name = 'ROSE';
++----+------+-------------+---------+------------+--------+--------+-----------+-------------+------------+---------+------------+
+| id | NAME | PhoneNumber | ADDRESS | DEPARTMENT | gender | SALARY | DEDUCTION | TAX_PAYABLE | INCOME_TAX | NET_PAY | START      |
++----+------+-------------+---------+------------+--------+--------+-----------+-------------+------------+---------+------------+
+|  2 | ROSE | 9867895232  | Swiden  | sales      | F      | 200000 |         0 |           0 |          0 |       0 | 2020-12-17 |
+|  4 | ROSE | 2345676543  | Swiden  | Marketing  | F      | 200000 |     10000 |       20000 |      20000 |  195000 | 2021-12-17 |
++----+------+-------------+---------+------------+--------+--------+-----------+-------------+------------+---------+------------+
+2 rows in set (0.0006 sec)
+___________________________________________________________________________________________________________________________________________________________________________________________________________
+
+UC-11 :- Implement ER Diagram in Payroll Service DB
+
+ MySQL  localhost:3306 ssl  payroll_service  SQL > create table company(Company_ID int not null primary key, Company_Name varchar(50) not null);
+Query OK, 0 rows affected (2.1650 sec)
+MySQL  localhost:3306 ssl  payroll_service  SQL > describe company;
++--------------+-------------+------+-----+---------+-------+
+| Field        | Type        | Null | Key | Default | Extra |
++--------------+-------------+------+-----+---------+-------+
+| Company_ID   | int         | NO   | PRI | NULL    |       |
+| Company_Name | varchar(50) | NO   |     | NULL    |       |
++--------------+-------------+------+-----+---------+-------+
+2 rows in set (0.1995 sec)
+ MySQL  localhost:3306 ssl  payroll_service  SQL > create table employee_details( EMP_ID int unsigned not null auto_increment primary key, NAME varchar(30) not null, Company_ID int, Phone_Number varchar(10) not null, ADDRESS varchar(50) not null, gender char(1), START date not null, FOREIGN KEY (Company_ID) references company(Company_ID))ENGINE=INNODB;
+Query OK, 0 rows affected (0.7903 sec)
+ MySQL  localhost:3306 ssl  payroll_service  SQL > describe employee_details;
++--------------+--------------+------+-----+---------+----------------+
+| Field        | Type         | Null | Key | Default | Extra          |
++--------------+--------------+------+-----+---------+----------------+
+| EMP_ID       | int unsigned | NO   | PRI | NULL    | auto_increment |
+| NAME         | varchar(30)  | NO   |     | NULL    |                |
+| Company_ID   | int          | YES  | MUL | NULL    |                |
+| Phone_Number | varchar(10)  | NO   |     | NULL    |                |
+| ADDRESS      | varchar(50)  | NO   |     | NULL    |                |
+| gender       | char(1)      | YES  |     | NULL    |                |
+| START        | date         | NO   |     | NULL    |                |
++--------------+--------------+------+-----+---------+----------------+
+7 rows in set (0.2522 sec)
+MySQL  localhost:3306 ssl  payroll_service  SQL > describe DEPARTMENT;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| Dept_ID   | int         | NO   | PRI | NULL    |       |
+| Dept_Name | varchar(20) | NO   |     | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+2 rows in set (0.1739 sec)
+
+ MySQL  localhost:3306 ssl  payroll_service  SQL > create table payroll (Emp_ID int unsigned not null auto_increment, SALARY double not null, DEDUCTION double not null, TAX_PAYABLE double not null, INCOME_TAX double not null, NET_PAY double not null, foreign key (EMP_ID) references employee_details(EMP_ID));
+Query OK, 0 rows affected (1.4507 sec)
+ MySQL  localhost:3306 ssl  payroll_service  SQL > describe payroll;
++-------------+--------------+------+-----+---------+----------------+
+| Field       | Type         | Null | Key | Default | Extra          |
++-------------+--------------+------+-----+---------+----------------+
+| Emp_ID      | int unsigned | NO   | MUL | NULL    | auto_increment |
+| SALARY      | double       | NO   |     | NULL    |                |
+| DEDUCTION   | double       | NO   |     | NULL    |                |
+| TAX_PAYABLE | double       | NO   |     | NULL    |                |
+| INCOME_TAX  | double       | NO   |     | NULL    |                |
+| NET_PAY     | double       | NO   |     | NULL    |                |
++-------------+--------------+------+-----+---------+----------------+
+
+MySQL  localhost:3306 ssl  payroll_service  SQL > create table employee_Dept (Emp_ID int unsigned not null auto_increment, Dept_ID int not null, foreign key (EmP_ID) references employee_details(Emp_ID), foreign key (Dept_ID) references DEPARTMENT(Dept_ID));
+Query OK, 0 rows affected (1.0135 sec)
+ MySQL  localhost:3306 ssl  payroll_service  SQL > describe employee_Dept;
++---------+--------------+------+-----+---------+----------------+
+| Field   | Type         | Null | Key | Default | Extra          |
++---------+--------------+------+-----+---------+----------------+
+| Emp_ID  | int unsigned | NO   | MUL | NULL    | auto_increment |
+| Dept_ID | int          | NO   | MUL | NULL    |                |
++---------+--------------+------+-----+---------+----------------+
+2 rows in set (0.2605 sec)
+ MySQL  localhost:3306 ssl  payroll_service  SQL > show tables;
++---------------------------+
+| Tables_in_payroll_service |
++---------------------------+
+| company                   |
+| department                |
+| employee_dept             |
+| employee_details          |
+| employee_payroll          |
+| payroll                   |
++---------------------------+
+6 rows in set (0.0030 sec)
+____________________________________________________________________________________________________________________________________________________________________________________________________________
+
+UC-12 :- Retrieve Query
+
+ MySQL  localhost:3306 ssl  payroll_service  SQL > insert into company (Company_ID, Company_Name) values ( 100, 'ABC');
+Query OK, 1 row affected (0.2283 sec)
+ MySQL  localhost:3306 ssl  payroll_service  SQL > select * from company;
++------------+--------------+
+| Company_ID | Company_Name |
++------------+--------------+
+|        100 | ABC          |
++------------+--------------+
+1 row in set (0.0004 sec)
+
+ MySQL  localhost:3306 ssl  payroll_service  SQL > insert into employee_details (NAME, Company_ID, Emp_ID, Phone_Number, ADDRESS, gender, START) values ('kaushu', 100, 01, 8765432123, 'vizag', 'F', '2020-05-14'),('Soni', 100, 02, 876543223, 'Assam', 'F', '2020-03-30'),('Teju', 100, 03, 7654234567, 'Vizag', 'F', '2020-10-10'),('Sri',100, 04, 4567823456, 'Hyd', 'M', '2021-03-03');
+Query OK, 4 rows affected (0.5358 sec)
+
+Records: 4  Duplicates: 0  Warnings: 0
+ MySQL  localhost:3306 ssl  payroll_service  SQL > select * from employee_details;
++--------+--------+------------+--------------+---------+--------+------------+
+| EMP_ID | NAME   | Company_ID | Phone_Number | ADDRESS | gender | START      |
++--------+--------+------------+--------------+---------+--------+------------+
+|      1 | kaushu |        100 | 8765432123   | vizag   | F      | 2020-05-14 |
+|      2 | Soni   |        100 | 876543223    | Assam   | F      | 2020-03-30 |
+|      3 | Teju   |        100 | 7654234567   | Vizag   | F      | 2020-10-10 |
+|      4 | Sri    |        100 | 4567823456   | Hyd     | M      | 2021-03-03 |
++--------+--------+------------+--------------+---------+--------+------------+
+4 rows in set (0.0006 sec)
+
+ MySQL  localhost:3306 ssl  payroll_service  SQL > insert into payroll(Emp_ID, SALARY, DEDUCTION,TAX_PAYABLE, INCOME_TAX, NET_PAY) values (01, 300000, 1000, 2000, 2000, 295000 ),(02, 200000, 1000, 2000, 2000, 195000), (03, 30000, 1000,2000,2000, 295000), (04,200000, 1000,2000, 2000, 195000);
+Query OK, 4 rows affected (0.1931 sec)
+
+Records: 4  Duplicates: 0  Warnings: 0
+ MySQL  localhost:3306 ssl  payroll_service  SQL > select * from payroll;
++--------+--------+-----------+-------------+------------+---------+
+| Emp_ID | SALARY | DEDUCTION | TAX_PAYABLE | INCOME_TAX | NET_PAY |
++--------+--------+-----------+-------------+------------+---------+
+|      1 | 300000 |      1000 |        2000 |       2000 |  295000 |
+|      2 | 200000 |      1000 |        2000 |       2000 |  195000 |
+|      3 |  30000 |      1000 |        2000 |       2000 |  295000 |
+|      4 | 200000 |      1000 |        2000 |       2000 |  195000 |
++--------+--------+-----------+-------------+------------+---------+
+4 rows in set (0.0004 sec)
